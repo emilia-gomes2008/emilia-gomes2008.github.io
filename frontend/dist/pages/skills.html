@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skills · Emília</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <script>try{document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") || "dark");}catch(e){}</script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="nav-wrap">
+      <span class="brand"><span class="dot"></span>Emília Gomes</span>
+      <nav class="main-nav">
+        <a href="../index.html">Home</a>
+        <a href="skills.html" class="active">Skills</a>
+        <a href="projects.html">Projects</a>
+        <a href="interests.html">Interests</a>
+        <a href="creative.html">Creative</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+  </header>
+
+  <main>
+    <h2>Skills</h2>
+    <p class="tagline">Click any icon to see what I use it for.</p>
+
+    <div class="skill-grid" id="skills-grid"></div>
+  </main>
+
+  <div class="modal-overlay" id="skill-modal">
+    <div class="modal-box">
+      <button class="modal-close" id="skill-modal-close" aria-label="Close">✕</button>
+      <div id="skill-modal-body"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">© <span id="year"></span> Emília Martins Gomes</footer>
+  <script src="../assets/js/skills.js"></script>
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+  <script src="../assets/js/theme.js"></script>
+</body>
+</html>
