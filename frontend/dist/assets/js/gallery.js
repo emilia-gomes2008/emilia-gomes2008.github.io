@@ -12,6 +12,8 @@ const PHOTOS = [
   { file: "funny.png", caption: "CSS error while building this page. It was funny." },
 ];
 
+let currentIndex = 0;
+
 function renderGallery() {
   const grid = document.getElementById("gallery-grid");
   if (!grid) return;
@@ -29,31 +31,68 @@ function renderGallery() {
   ).join("");
 
   grid.querySelectorAll(".gallery-tile").forEach((tile) => {
-    tile.addEventListener("click", () => openLightbox(PHOTOS[Number(tile.dataset.index)]));
+    tile.addEventListener("click", () => openLightbox(Number(tile.dataset.index)));
   });
 }
 
-function openLightbox(photo) {
-  const overlay = document.getElementById("gallery-modal");
+function renderModal() {
+  const photo = PHOTOS[currentIndex];
   const body = document.getElementById("gallery-modal-body");
   body.innerHTML = `
     <img src="../assets/images/gallery/${photo.file}" alt="${photo.caption}" />
     <p>${photo.caption}</p>
+    <div class="gallery-thumbs">
+      ${PHOTOS.map(
+    (p, i) => `
+        <button type="button" class="gallery-thumb ${i === currentIndex ? "active" : ""}" data-index="${i}" aria-label="Photo ${i + 1}">
+          <img src="../assets/images/gallery/${p.file}" alt="" loading="lazy" />
+        </button>`
+  ).join("")}
+    </div>
   `;
-  overlay.classList.add("open");
+
+  body.querySelectorAll(".gallery-thumb").forEach((thumb) => {
+    thumb.addEventListener("click", () => {
+      currentIndex = Number(thumb.dataset.index);
+      renderModal();
+    });
+  });
+
+  body.querySelector(".gallery-thumb.active")?.scrollIntoView({ block: "nearest", inline: "center" });
+}
+
+function openLightbox(index) {
+  currentIndex = index;
+  renderModal();
+  document.getElementById("gallery-modal").classList.add("open");
 }
 
 function closeLightbox() {
   document.getElementById("gallery-modal").classList.remove("open");
 }
 
+function showPrev() {
+  currentIndex = (currentIndex - 1 + PHOTOS.length) % PHOTOS.length;
+  renderModal();
+}
+
+function showNext() {
+  currentIndex = (currentIndex + 1) % PHOTOS.length;
+  renderModal();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   renderGallery();
   document.getElementById("gallery-modal-close").addEventListener("click", closeLightbox);
+  document.getElementById("gallery-prev").addEventListener("click", showPrev);
+  document.getElementById("gallery-next").addEventListener("click", showNext);
   document.getElementById("gallery-modal").addEventListener("click", (e) => {
     if (e.target.id === "gallery-modal") closeLightbox();
   });
   document.addEventListener("keydown", (e) => {
+    if (!document.getElementById("gallery-modal").classList.contains("open")) return;
     if (e.key === "Escape") closeLightbox();
+    if (e.key === "ArrowLeft") showPrev();
+    if (e.key === "ArrowRight") showNext();
   });
 });
