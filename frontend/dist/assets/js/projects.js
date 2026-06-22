@@ -10,6 +10,48 @@ const DESCRIPTION_OVERRIDES = {
   "Fnaf-Jumpscares-VS-Code-Extension": "A VS Code extension that randomly scares you with Five Nights at Freddy's jumpscares while you program."
 };
 
+const PROJECTS_PER_PAGE = 4;
+let allRepos = [];
+let currentPage = 0;
+
+function renderRepoCard(repo) {
+  return `
+        <div class="card project-card">
+          <h3>${repo.name}</h3>
+          <p>${escapeHtml(DESCRIPTION_OVERRIDES[repo.name] || repo.description || "No description provided.")}</p>
+          <div class="repo-meta">
+            ${repo.language ? `<span>🔵 ${escapeHtml(repo.language)}</span>` : ""}
+            <span>⭐ ${repo.stargazers_count}</span>
+            <span>🍴 ${repo.forks_count}</span>
+          </div>
+          <a class="repo-link" href="${repo.html_url}" target="_blank" rel="noopener noreferrer">View on GitHub →</a>
+        </div>`;
+}
+
+function renderPage() {
+  const container = document.getElementById("projects-list");
+  const pagination = document.getElementById("projects-pagination");
+  const prevBtn = document.getElementById("projects-prev");
+  const nextBtn = document.getElementById("projects-next");
+  const indicator = document.getElementById("projects-page-indicator");
+  if (!container) return;
+
+  const totalPages = Math.ceil(allRepos.length / PROJECTS_PER_PAGE);
+  const start = currentPage * PROJECTS_PER_PAGE;
+  const pageRepos = allRepos.slice(start, start + PROJECTS_PER_PAGE);
+
+  container.innerHTML = pageRepos.map(renderRepoCard).join("");
+
+  if (totalPages > 1) {
+    pagination.hidden = false;
+    prevBtn.disabled = currentPage === 0;
+    nextBtn.disabled = currentPage === totalPages - 1;
+    indicator.textContent = `${currentPage + 1} / ${totalPages}`;
+  } else {
+    pagination.hidden = true;
+  }
+}
+
 async function loadProjects() {
   const container = document.getElementById("projects-list");
   if (!container) return;
@@ -23,30 +65,32 @@ async function loadProjects() {
       throw new Error(`GitHub API responded with ${res.status}`);
     }
 
-    const repos = (await res.json()).filter(
+    allRepos = (await res.json()).filter(
       (repo) => !repo.fork && !EXCLUDED_REPOS.has(repo.name)
     );
 
-    if (repos.length === 0) {
+    if (allRepos.length === 0) {
       container.innerHTML = `<p class="state-msg">No public repositories yet — check back soon!</p>`;
       return;
     }
 
-    container.innerHTML = repos
-      .map(
-        (repo) => `
-        <div class="card project-card">
-          <h3>${repo.name}</h3>
-          <p>${escapeHtml(DESCRIPTION_OVERRIDES[repo.name] || repo.description || "No description provided.")}</p>
-          <div class="repo-meta">
-            ${repo.language ? `<span>🔵 ${escapeHtml(repo.language)}</span>` : ""}
-            <span>⭐ ${repo.stargazers_count}</span>
-            <span>🍴 ${repo.forks_count}</span>
-          </div>
-          <a class="repo-link" href="${repo.html_url}" target="_blank" rel="noopener noreferrer">View on GitHub →</a>
-        </div>`
-      )
-      .join("");
+    currentPage = 0;
+    renderPage();
+
+    document.getElementById("projects-prev").addEventListener("click", () => {
+      if (currentPage > 0) {
+        currentPage--;
+        renderPage();
+      }
+    });
+
+    document.getElementById("projects-next").addEventListener("click", () => {
+      const totalPages = Math.ceil(allRepos.length / PROJECTS_PER_PAGE);
+      if (currentPage < totalPages - 1) {
+        currentPage++;
+        renderPage();
+      }
+    });
   } catch (err) {
     container.innerHTML = `<p class="state-msg">Couldn't load projects right now. View them directly on <a href="https://github.com/${GITHUB_USERNAME}" target="_blank" rel="noopener noreferrer">GitHub</a>.</p>`;
   }

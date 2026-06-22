@@ -30,9 +30,15 @@
     <section class="section-block">
       <h2>💻 Code Projects</h2>
       <p class="tagline" style="margin-bottom: 18px;">Pulled live from my <a href="https://github.com/emilia-gomes2008"
-          target="_blank" rel="noopener noreferrer">GitHub</a>, with descriptions straight from each repo.</p>
-      <div class="grid" id="projects-list">
+          target="_blank" rel="noopener noreferrer">GitHub</a>, with descriptions either straight from each repo or
+        customized.</p>
+      <div class="grid projects-grid" id="projects-list">
         <p class="state-msg">Loading projects…</p>
+      </div>
+      <div class="projects-pagination" id="projects-pagination" hidden>
+        <button id="projects-prev" class="page-arrow" aria-label="Previous projects">←</button>
+        <span id="projects-page-indicator" class="page-indicator"></span>
+        <button id="projects-next" class="page-arrow" aria-label="Next projects">→</button>
       </div>
     </section>
 
